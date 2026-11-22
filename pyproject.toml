@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tenuto"
+version = "0.9.0"
+description = "Developmental Agent Continuity and Project Continuity for long-horizon AI coding sessions — zero dependencies, two-file SQLite."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [
+  { name = "Kelly Asay", email = "kellyasay@gmail.com" }
+]
+keywords = ["ai", "agents", "continuity", "memory", "sqlite", "cli", "claude-code", "codex"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/aomnimedia/tenuto"
+Repository = "https://github.com/aomnimedia/tenuto"
+Issues = "https://github.com/aomnimedia/tenuto/issues"
+
+[project.scripts]
+tenuto = "tenuto.cli:main_tenuto"
+remember = "tenuto.cli:main_remember"
+
+[tool.setuptools.packages.find]
+where = ["src"]
