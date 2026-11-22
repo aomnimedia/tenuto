@@ -99,7 +99,7 @@ tenuto project ref-save --project-key app --reference-key spec --label "Spec" --
 
 ## Need Hands-On Help?
 
-Built by **Kelly Asay** ([AOmniMedia](https://aomnimedia.com) — *Computational Intelligence Development*). 40+ years across hardware and software systems, including a distributed satellite-backed retail-to-logistics platform, the first massively multiplayer in-game community (*Tribes 2*), and shipping *Enigma: Rising Tide* bug-free.
+Built by **Kelly Asay** ([AOmniMedia](https://aomnimedia.com) — *Computational Intelligence Development*). Working across hardware and software since the minicomputer and CP/M era, Kelly's past work includes a satellite-backed retail-to-warehouse logistics system across 2,000+ Hollywood Entertainment stores, leading development of the first massively multiplayer in-game community at Dynamix (*Tribes 2*), and co-founding Tesseraction Games to ship *Enigma: Rising Tide* (350,000 copies sold).
 
 If your solo workflow or engineering team is losing sprints and token budgets to drifting coding agents:
 

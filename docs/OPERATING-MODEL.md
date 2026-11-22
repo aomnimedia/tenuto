@@ -8,7 +8,7 @@
 
 ## Introduction: The Human + Agent Formula
 
-I have been working with computers since before there was a DOS — starting in hardware, moving into software, and eventually designing systems that did not exist before we built them, including a distributed satellite-backed retail-to-warehouse logistics system, the world's first massively multiplayer in-game community (*Tribes 2*), and shipping *Enigma: Rising Tide* bug-free.
+I have been working with computers since the minicomputer and CP/M era — starting in hardware, moving into software, and eventually designing systems that did not exist before we built them: a satellite-backed retail-to-warehouse logistics and executive reporting system across 2,000+ Hollywood Entertainment stores, the first massively multiplayer in-game community at Dynamix (*Tribes 2*), and co-founding Tesseraction Games to ship *Enigma: Rising Tide* (350,000 copies sold).
 
 When I started building serious systems with AI coding agents, I ran straight into the same wall every experienced engineer hits: sessions look fast on Day 1, start wobbling on Day 3, and collapse into drift, broken assumptions, and wasted token budgets by Week 2.
 
