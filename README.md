@@ -21,7 +21,7 @@ Long coding-agent sessions usually fail for three avoidable reasons:
 2. **Model vs. Agent confusion:** The stateless *Model* pushes for fast momentum; the *Agent* owns the tools, constitution, and continuity that keep the Model aligned.
 3. **Agent-vs-Project bleed:** Agents lazily dump project task trivia into personal agent memory. Separating private `~/.tenuto/agent.db` from repo-local `.tenuto/project.db` enforces the boundary at the filesystem level.
 
-> **Read the full craft:** [The Tenuto Operating Model (`docs/OPERATING-MODEL.md`)](docs/OPERATING-MODEL.md) — covers *Model vs. Agent*, *Friction Mechanics*, spotting the *Bookkeeping Drift Tell*, the *2-Error Safe-Space Recovery Protocol*, *Day-1 Onboarding Prompts*, and verified Claude Code / Codex integrations.
+> **Read the full craft:** [The Tenuto Operating Model (`docs/OPERATING-MODEL.md`)](https://github.com/aomnimedia/tenuto/blob/main/docs/OPERATING-MODEL.md) — covers *Model vs. Agent*, *Friction Mechanics*, spotting the *Bookkeeping Drift Tell*, the *2-Error Safe-Space Recovery Protocol*, *Day-1 Onboarding Prompts*, and verified Claude Code / Codex integrations.
 
 ---
 
