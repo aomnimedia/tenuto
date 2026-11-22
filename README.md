@@ -103,10 +103,8 @@ Built by **Kelly Asay** ([AOmniMedia](https://aomnimedia.com) — *Computational
 
 If your solo workflow or engineering team is losing sprints and token budgets to drifting coding agents:
 
-- **90-Minute Live Continuity & Drift Audit ($299, remote):** Bring your real repository and drifting agent logs. Leave with a calibrated Working Constitution, Tenuto wired into your tools, and your first durable memories built cleanly.
-- **1-Week Remote Team Continuity Setup & Calibration ($1,500–$2,500):** Multi-agent Tenuto rollout for 3–25 person engineering teams, repo hygiene calibration, and lead-engineer coaching on drift tells and constructive recovery.
-
-Reach out at [aomnimedia.com/contact](https://aomnimedia.com/contact) *(direct booking & Stripe checkout links coming at launch)*.
+- **90-Minute Live Continuity & Drift Audit ($299, remote):** Bring your real repository and drifting agent logs. Leave with a calibrated Working Constitution, Tenuto wired into your tools, and your first durable memories built cleanly. — [Book via Stripe](https://buy.stripe.com/dRm7sL3HNd5U6yk30B3ZK00)
+- **Remote Team Continuity Setup & Calibration ($1,950, remote):** Multi-agent Tenuto rollout for 3–25 person engineering teams, repository continuity hygiene calibration, and lead-engineer coaching on drift tells and constructive recovery. — [Book via Stripe](https://buy.stripe.com/6oUeVdcej8PE3m8gRr3ZK01) or [inquire first](https://aomnimedia.com/contact)
 
 ---
 
