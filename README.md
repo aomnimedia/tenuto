@@ -2,21 +2,26 @@
 
 **Held to its full value — Accuracy over Speed.**
 
-Tenuto is a zero-dependency Python + SQLite continuity system for long-horizon AI coding-agent sessions (Claude Code, Codex CLI, Cursor, Antigravity, OpenClaw). It ships two first-class CLI entry points from one tiny package:
+Zero-dependency Python + SQLite developmental continuity for long-horizon AI coding-agent sessions (Claude Code, Codex CLI, Cursor, Antigravity, OpenClaw) — distilled from keeping a multi-layer systems engineering session coherent for **three months with near-zero drift**.
+
+Tenuto ships two first-class CLI entry points from one tiny package:
 
 - **`remember`** — private **Agent Developmental Continuity** (`~/.tenuto/agent.db`): working constitution, constructive durable practices, two-way collaboration proposals, checkpoints, and separation hygiene.
 - **`tenuto project`** — shareable **Project Continuity** (`.tenuto/project.db`): project framing, current state, checkpoints, consequential decisions/learnings, and authoritative references.
 
-Both halves run on Python's built-in `sqlite3`. No servers, no Docker, no vector database, no API keys.
+No servers, no Docker, no vector database, no API keys, no external Python dependencies.
 
 ---
 
-## Why Two Separate SQLite Files?
+## Why Tenuto Exists
 
-Long coding-agent sessions fail in two predictable ways:
+Long coding-agent sessions usually fail for three avoidable reasons:
 
-1. **Punitive memory bloat:** Appending *"NEVER DO X"* error ledgers into `CLAUDE.md` / `MEMORY.md` pollutes context and degrades adherence. Tenuto consolidates learning constructively (`practice + application_context + success_signal`) and reinforces a short 5-principle constitution across session transitions.
-2. **Agent-vs-Project bleed:** Agents lazily dump project task trivia into personal agent memory. Separating private `~/.tenuto/agent.db` from repo-local `.tenuto/project.db` enforces the boundary at the filesystem level.
+1. **Punitive memory bloat:** Stuffing *"NEVER DO X"* error ledgers into `CLAUDE.md` / `MEMORY.md` burns tokens and triggers defensive or compliance-faking loops. Tenuto consolidates lessons constructively (`practice + application_context + success_signal`).
+2. **Model vs. Agent confusion:** The stateless *Model* pushes for fast momentum; the *Agent* owns the tools, constitution, and continuity that keep the Model aligned.
+3. **Agent-vs-Project bleed:** Agents lazily dump project task trivia into personal agent memory. Separating private `~/.tenuto/agent.db` from repo-local `.tenuto/project.db` enforces the boundary at the filesystem level.
+
+> **Read the full craft:** [The Tenuto Operating Model (`docs/OPERATING-MODEL.md`)](docs/OPERATING-MODEL.md) — covers *Model vs. Agent*, *Friction Mechanics*, spotting the *Bookkeeping Drift Tell*, the *2-Error Safe-Space Recovery Protocol*, *Day-1 Onboarding Prompts*, and verified Claude Code / Codex integrations.
 
 ---
 
@@ -31,11 +36,21 @@ remember startup
 `tenuto init` safely creates (never overwriting existing databases):
 - `~/.tenuto/agent.db` + `WORKING-CONSTITUTION.md` + `CONTINUITY-CONTRACT.md`
 - `.tenuto/project.db` in your repository
-- `~/.tenuto/integrations/` ready-to-copy templates:
+- `~/.tenuto/integrations/` verified starter templates:
   - `codex-launcher.sh` (`codex --profile` + `resume` posture wrapper)
   - `claude-launcher.sh` (`claude --append-system-prompt-file` wrapper)
   - `claude-hooks.json` (`SessionStart` hook for `startup|resume|clear|compact`)
   - `AGENTS-snippet.md` (universal boot block for all OSes and IDEs)
+
+---
+
+## Five-Principle Working Constitution
+
+1. **Accuracy over Speed**
+2. **Read the target and review your code before executing**
+3. **Evidence over assumptions**
+4. **2 identical failures on a task = hard stop for re-authorization**
+5. **Always reload continuity after compaction**
 
 ---
 
@@ -78,20 +93,23 @@ tenuto project ref-save --project-key app --reference-key spec --label "Spec" --
 ### Multi-Agent & Multi-Project Isolation
 
 - **Multiple projects:** One `.tenuto/project.db` holds any number of projects keyed by `--project-key`.
-- **Multiple agents:** Give each agent its own private `TENUTO_HOME` (for its own `agent.db`) while sharing one `.tenuto/project.db` (WAL mode + 5s `busy_timeout`). Set `TENUTO_ACTOR` or pass `--by <agent>` to attribute project states, checkpoints, and memories cleanly.
+- **Multiple agents:** Give each agent its own private `TENUTO_HOME` while sharing `.tenuto/project.db` (WAL mode + 5s `busy_timeout`). Set `TENUTO_ACTOR` or pass `--by <agent>` to attribute project writes cleanly.
 
 ---
 
-## Five-Principle Working Constitution
+## Need Hands-On Help?
 
-1. **Accuracy over Speed**
-2. **Read the target and review your code before executing**
-3. **Evidence over assumptions**
-4. **2 identical failures on a task = hard stop for re-authorization**
-5. **Always reload continuity after compaction**
+Built by **Kelly Asay** ([AOmniMedia](https://aomnimedia.com) — *Computational Intelligence Development*). 40+ years across hardware and software systems, including a distributed satellite-backed retail-to-logistics platform, the first massively multiplayer in-game community (*Tribes 2*), and shipping *Enigma: Rising Tide* bug-free.
+
+If your solo workflow or engineering team is losing sprints and token budgets to drifting coding agents:
+
+- **90-Minute Live Continuity & Drift Audit ($299, remote):** Bring your real repository and drifting agent logs. Leave with a calibrated Working Constitution, Tenuto wired into your tools, and your first durable memories built cleanly.
+- **1-Week Remote Team Continuity Setup & Calibration ($1,500–$2,500):** Multi-agent Tenuto rollout for 3–25 person engineering teams, repo hygiene calibration, and lead-engineer coaching on drift tells and constructive recovery.
+
+Reach out at [aomnimedia.com/contact](https://aomnimedia.com/contact) *(direct booking & Stripe checkout links coming at launch)*.
 
 ---
 
 ## License
 
-MIT — © 2026 Kelly Asay / AOmniMedia (Computational Intelligence Development)
+MIT — © 2026 Kelly Asay / AOmniMedia
