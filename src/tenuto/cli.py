@@ -194,15 +194,15 @@ PROJECT_HELP = {
         "Return the complete Project Resume View (framing, gaps, latest state, checkpoint, memories, references)."
     ),
     "state": (
-        'Usage: tenuto project state --project-key KEY "content|-" [--file PATH]\n'
-        "Append a fresh, complete project Current State evaluation."
+        'Usage: tenuto project state --project-key KEY "content|-" [--by AGENT] [--file PATH]\n'
+        "Append a fresh, complete project Current State evaluation (actor falls back to TENUTO_ACTOR)."
     ),
     "checkpoint": (
-        "Usage: tenuto project checkpoint --project-key KEY --completed TEXT --next TEXT [--context TEXT]\n"
-        "Append a project task boundary checkpoint."
+        "Usage: tenuto project checkpoint --project-key KEY --completed TEXT --next TEXT [--context TEXT] [--by AGENT]\n"
+        "Append a project task boundary checkpoint (actor falls back to TENUTO_ACTOR)."
     ),
     "memory": (
-        'Usage: tenuto project memory --project-key KEY --kind decision|outcome|learning|revelation --title TITLE "body|-" [--supersedes ID] [--file PATH]\n'
+        'Usage: tenuto project memory --project-key KEY --kind decision|outcome|learning|revelation --title TITLE "body|-" [--supersedes ID] [--by AGENT] [--file PATH]\n'
         "Append a consequential project decision, outcome, learning, or revelation."
     ),
     "ref-save": (
@@ -239,7 +239,8 @@ def _render_project_resume(resume: dict[str, Any], as_json: bool) -> None:
     _header("PROJECT CURRENT STATE")
     cs = resume["current_state"]
     if cs:
-        print(f"Updated: {cs['created_at']} (#{cs['id']})")
+        who = f" by {cs['actor']}" if cs.get("actor") else ""
+        print(f"Updated: {cs['created_at']} (#{cs['id']}{who})")
         print(cs["content"])
     else:
         print("No project Current State recorded.")
@@ -248,7 +249,8 @@ def _render_project_resume(resume: dict[str, Any], as_json: bool) -> None:
     _header("PROJECT CHECKPOINT")
     cp = resume["checkpoint"]
     if cp:
-        print(f"Updated:   {cp['created_at']} (#{cp['id']})")
+        who = f" by {cp['actor']}" if cp.get("actor") else ""
+        print(f"Updated:   {cp['created_at']} (#{cp['id']}{who})")
         print(f"Completed: {cp['completed']}")
         print(f"Next:      {cp['next_step']}")
         if cp.get("context"):
@@ -260,7 +262,8 @@ def _render_project_resume(resume: dict[str, Any], as_json: bool) -> None:
     _header("PROJECT MEMORIES (LATEST)")
     if resume["latest_memories"]:
         for m in resume["latest_memories"]:
-            print(f"#{m['id']} [{m['kind']}] {m['title']} ({m['created_at']})")
+            who = f" · by {m['actor']}" if m.get("actor") else ""
+            print(f"#{m['id']} [{m['kind']}] {m['title']} ({m['created_at']}{who})")
             print(f"  {m['body']}")
     else:
         print("No project memories recorded.")
@@ -1096,6 +1099,14 @@ def cmd_stats(args: list[str]) -> None:
 
 # ─── PROJECT CONTINUITY SUBCOMMANDS (.tenuto/project.db) ──────────────────
 
+def _resolve_actor(explicit: str | None) -> str | None:
+    raw = explicit if explicit is not None else os.environ.get("TENUTO_ACTOR")
+    if raw is None:
+        return None
+    cleaned = raw.strip()
+    return cleaned or None
+
+
 def _ensure_project_exists(conn: sqlite3.Connection, project_key: str) -> None:
     if conn.execute("SELECT 1 FROM projects WHERE project_key=?", (project_key,)).fetchone() is None:
         raise KeyError(
@@ -1191,46 +1202,50 @@ def cmd_project(args: list[str]) -> None:
         _render_project_resume(resume, as_json=bool(f["--json"]))
 
     elif sub == "state":
-        pos, f = _parse_flags(sub_args, {"--project-key", "--file"})
+        pos, f = _parse_flags(sub_args, {"--project-key", "--file", "--by"})
         if not f.get("--project-key") or (not pos and not f.get("--file")):
             raise ValueError(PROJECT_HELP["state"])
         content = _require_text(_resolve_text(pos[0] if pos else "-", f.get("--file")), "content")
+        actor = _resolve_actor(f.get("--by"))
         conn = connect_rw(project_db)
         try:
             _ensure_project_exists(conn, f["--project-key"])
             now = _now_ts()
             cur = conn.execute(
-                "INSERT INTO project_states (project_key, created_at, content, content_sha256) VALUES (?, ?, ?, ?)",
-                (f["--project-key"], now, content, sha256_text(content)),
+                "INSERT INTO project_states (project_key, created_at, actor, content, content_sha256) VALUES (?, ?, ?, ?, ?)",
+                (f["--project-key"], now, actor, content, sha256_text(content)),
             )
             conn.commit()
-            print(f"Project '{f['--project-key']}' state #{cur.lastrowid} appended at {now}.")
+            who = f" by {actor}" if actor else ""
+            print(f"Project '{f['--project-key']}' state #{cur.lastrowid} appended at {now}{who}.")
         finally:
             conn.close()
 
     elif sub == "checkpoint":
-        _, f = _parse_flags(sub_args, {"--project-key", "--completed", "--next", "--context"})
+        _, f = _parse_flags(sub_args, {"--project-key", "--completed", "--next", "--context", "--by"})
         for req in ("--project-key", "--completed", "--next"):
             if not f.get(req):
                 raise ValueError(f"Missing {req}. Run `tenuto project checkpoint --help`.")
             _require_text(f[req], req)
+        actor = _resolve_actor(f.get("--by"))
         conn = connect_rw(project_db)
         try:
             _ensure_project_exists(conn, f["--project-key"])
             now = _now_ts()
             cur = conn.execute(
-                "INSERT INTO project_checkpoints (project_key, created_at, completed, next_step, context) "
-                "VALUES (?, ?, ?, ?, ?)",
-                (f["--project-key"], now, f["--completed"], f["--next"], f.get("--context")),
+                "INSERT INTO project_checkpoints (project_key, created_at, actor, completed, next_step, context) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (f["--project-key"], now, actor, f["--completed"], f["--next"], f.get("--context")),
             )
             conn.commit()
-            print(f"Project '{f['--project-key']}' checkpoint #{cur.lastrowid} appended at {now}.")
+            who = f" by {actor}" if actor else ""
+            print(f"Project '{f['--project-key']}' checkpoint #{cur.lastrowid} appended at {now}{who}.")
             print(COMPASS_CUE)
         finally:
             conn.close()
 
     elif sub == "memory":
-        pos, f = _parse_flags(sub_args, {"--project-key", "--kind", "--title", "--supersedes", "--file"})
+        pos, f = _parse_flags(sub_args, {"--project-key", "--kind", "--title", "--supersedes", "--file", "--by"})
         for req in ("--project-key", "--kind", "--title"):
             if not f.get(req):
                 raise ValueError(f"Missing {req}. Run `tenuto project memory --help`.")
@@ -1239,6 +1254,7 @@ def cmd_project(args: list[str]) -> None:
         if not pos and not f.get("--file"):
             raise ValueError("Missing memory body (or pass '-' for stdin / --file PATH).")
         body = _require_text(_resolve_text(pos[0] if pos else "-", f.get("--file")), "body")
+        actor = _resolve_actor(f.get("--by"))
         sup_id = int(f["--supersedes"]) if f.get("--supersedes") else None
         conn = connect_rw(project_db)
         try:
@@ -1254,15 +1270,16 @@ def cmd_project(args: list[str]) -> None:
                     raise ValueError(f"Project memory #{sup_id} is already superseded by #{prior['superseded_by_id']}.")
             now = _now_ts()
             cur = conn.execute(
-                "INSERT INTO project_memories (project_key, created_at, kind, title, body) VALUES (?, ?, ?, ?, ?)",
-                (f["--project-key"], now, f["--kind"], f["--title"], body),
+                "INSERT INTO project_memories (project_key, created_at, actor, kind, title, body) VALUES (?, ?, ?, ?, ?, ?)",
+                (f["--project-key"], now, actor, f["--kind"], f["--title"], body),
             )
             new_id = cur.lastrowid
             if sup_id is not None:
                 conn.execute("UPDATE project_memories SET superseded_by_id=? WHERE id=?", (new_id, sup_id))
             conn.commit()
             suffix = f" (supersedes #{sup_id})" if sup_id is not None else ""
-            print(f"Project '{f['--project-key']}' memory #{new_id} added: [{f['--kind']}] {f['--title']}{suffix}")
+            who = f" by {actor}" if actor else ""
+            print(f"Project '{f['--project-key']}' memory #{new_id} added: [{f['--kind']}] {f['--title']}{who}{suffix}")
         finally:
             conn.close()
 
@@ -1367,15 +1384,16 @@ def cmd_project(args: list[str]) -> None:
             print("No history records found.")
             return
         for r in rows:
+            who = f" · by {r['actor']}" if r.get("actor") else ""
             if f["--table"] == "state":
-                print(f"#{r['id']} ({r['created_at']})\n  {r['content']}")
+                print(f"#{r['id']} ({r['created_at']}{who})\n  {r['content']}")
             elif f["--table"] == "checkpoint":
-                print(f"#{r['id']} ({r['created_at']}) Completed: {r['completed']} | Next: {r['next_step']}")
+                print(f"#{r['id']} ({r['created_at']}{who}) Completed: {r['completed']} | Next: {r['next_step']}")
                 if r.get("context"):
                     print(f"  Context: {r['context']}")
             else:
                 sup = f" [SUPERSEDED BY #{r['superseded_by_id']}]" if r.get("superseded_by_id") else ""
-                print(f"#{r['id']} [{r['kind']}] {r['title']} ({r['created_at']}){sup}\n  {r['body']}")
+                print(f"#{r['id']} [{r['kind']}] {r['title']} ({r['created_at']}{who}){sup}\n  {r['body']}")
 
 
 def _dispatch(argv: list[str], prog: str) -> int:

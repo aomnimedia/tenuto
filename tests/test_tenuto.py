@@ -314,6 +314,84 @@ class TenutoCLITest(unittest.TestCase):
         self.assertIn("INQUIRY", joined)
         self.assertIn("path missing", joined)
 
+    def test_multi_agent_shared_project_with_actor_attribution(self) -> None:
+        agent_a = self.root / "agent-coder"
+        agent_b = self.root / "agent-qa"
+
+        def run_as(agent_home: Path, args: list[str], *, prog: str = "tenuto", actor: str | None = None) -> subprocess.CompletedProcess[str]:
+            env = dict(self.env)
+            env["TENUTO_HOME"] = str(agent_home)
+            if actor is not None:
+                env["TENUTO_ACTOR"] = actor
+            else:
+                env.pop("TENUTO_ACTOR", None)
+            entry = "main_remember" if prog == "remember" else "main_tenuto"
+            code = f"import sys; sys.argv = [{prog!r}] + sys.argv[1:]; from tenuto.cli import {entry}; {entry}()"
+            return subprocess.run(
+                [sys.executable, "-c", code, *args],
+                text=True,
+                capture_output=True,
+                cwd=str(self.repo_dir),
+                env=env,
+            )
+
+        self.assertEqual(run_as(agent_a, ["init"]).returncode, 0)
+        self.assertEqual(run_as(agent_b, ["init", "--agent-only"]).returncode, 0)
+
+        # Separate private agent memories stay completely isolated
+        self.assertEqual(
+            run_as(agent_a, ["durable-save", "coder-pref", "Coder Pref", "Small diffs", "--kind", "preference"], prog="remember").returncode,
+            0,
+        )
+        self.assertEqual(
+            run_as(agent_b, ["durable-save", "qa-pref", "QA Pref", "Verify edge cases", "--kind", "preference"], prog="remember").returncode,
+            0,
+        )
+        self.assertNotIn("qa-pref", run_as(agent_a, ["durable-list"], prog="remember").stdout)
+        self.assertNotIn("coder-pref", run_as(agent_b, ["durable-list"], prog="remember").stdout)
+
+        # Shared project.db records multi-agent attribution via --by and TENUTO_ACTOR
+        self.assertEqual(
+            run_as(
+                agent_a,
+                [
+                    "project", "save", "--project-key", "shared", "--name", "Shared",
+                    "--purpose", "Multi-agent test", "--scope", "v0.9", "--intended-outcomes", "Clean attribution",
+                ],
+            ).returncode,
+            0,
+        )
+        self.assertEqual(
+            run_as(agent_a, ["project", "state", "--project-key", "shared", "Implemented feature.", "--by", "coder"]).returncode,
+            0,
+        )
+        self.assertEqual(
+            run_as(
+                agent_b,
+                ["project", "memory", "--project-key", "shared", "--kind", "outcome", "--title", "QA Pass", "All checks passed."],
+                actor="qa-agent",
+            ).returncode,
+            0,
+        )
+        self.assertEqual(
+            run_as(
+                agent_b,
+                ["project", "checkpoint", "--project-key", "shared", "--completed", "QA verified", "--next", "Release"],
+                actor="qa-agent",
+            ).returncode,
+            0,
+        )
+
+        res_txt = run_as(agent_a, ["project", "resume", "--project-key", "shared"])
+        self.assertEqual(res_txt.returncode, 0, res_txt.stderr)
+        self.assertIn("by coder", res_txt.stdout)
+        self.assertIn("by qa-agent", res_txt.stdout)
+
+        res_json = json.loads(run_as(agent_a, ["project", "resume", "--project-key", "shared", "--json"]).stdout)
+        self.assertEqual(res_json["current_state"]["actor"], "coder")
+        self.assertEqual(res_json["checkpoint"]["actor"], "qa-agent")
+        self.assertEqual(res_json["latest_memories"][0]["actor"], "qa-agent")
+
 
 if __name__ == "__main__":
     unittest.main()

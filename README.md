@@ -65,15 +65,20 @@ EOF
 tenuto project save --project-key app --name "App" --purpose "..." --scope "..." --intended-outcomes "..."
 tenuto project list
 tenuto project resume --project-key app [--json]
-tenuto project state --project-key app - <<'EOF'
+tenuto project state --project-key app - [--by coder] <<'EOF'
 Current milestone evaluation.
 EOF
-tenuto project memory --project-key app --kind decision --title "Title" - [--supersedes ID] <<'EOF'
+tenuto project memory --project-key app --kind decision --title "Title" - [--by architect] [--supersedes ID] <<'EOF'
 Decision rationale.
 EOF
-tenuto project checkpoint --project-key app --completed "Did X" --next "Next Y" [--context "..."]
+tenuto project checkpoint --project-key app --completed "Did X" --next "Next Y" [--by qa] [--context "..."]
 tenuto project ref-save --project-key app --reference-key spec --label "Spec" --kind doc --location "docs/SPEC.md" --relevance "Design contract"
 ```
+
+### Multi-Agent & Multi-Project Isolation
+
+- **Multiple projects:** One `.tenuto/project.db` holds any number of projects keyed by `--project-key`.
+- **Multiple agents:** Give each agent its own private `TENUTO_HOME` (for its own `agent.db`) while sharing one `.tenuto/project.db` (WAL mode + 5s `busy_timeout`). Set `TENUTO_ACTOR` or pass `--by <agent>` to attribute project states, checkpoints, and memories cleanly.
 
 ---
 

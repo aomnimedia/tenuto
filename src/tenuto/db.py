@@ -144,6 +144,7 @@ CREATE TABLE project_states (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     project_key TEXT NOT NULL REFERENCES projects(project_key),
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    actor TEXT,
     content TEXT NOT NULL,
     content_sha256 TEXT NOT NULL,
     CHECK (length(trim(content)) > 0)
@@ -154,6 +155,7 @@ CREATE TABLE project_checkpoints (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     project_key TEXT NOT NULL REFERENCES projects(project_key),
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    actor TEXT,
     completed TEXT NOT NULL,
     next_step TEXT NOT NULL,
     context TEXT,
@@ -165,6 +167,7 @@ CREATE TABLE project_memories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     project_key TEXT NOT NULL REFERENCES projects(project_key),
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    actor TEXT,
     kind TEXT NOT NULL CHECK (kind IN ('decision', 'outcome', 'learning', 'revelation')),
     title TEXT NOT NULL,
     body TEXT NOT NULL,
@@ -223,8 +226,9 @@ def resolve_project_db(override: str | None = None, for_init: bool = False) -> P
 def connect_rw(db_path: Path) -> sqlite3.Connection:
     if not db_path.is_file():
         raise FileNotFoundError(f"Database not initialized: {db_path} (run `tenuto init`)")
-    conn = sqlite3.connect(str(db_path))
+    conn = sqlite3.connect(str(db_path), timeout=5.0)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA busy_timeout=5000")
     conn.execute("PRAGMA foreign_keys=ON")
     return conn
 
@@ -234,8 +238,9 @@ def connect_ro(db_path: Path) -> sqlite3.Connection:
         raise FileNotFoundError(f"Database not initialized: {db_path} (run `tenuto init`)")
     encoded = quote(db_path.as_posix(), safe="/:")
     uri = f"file:{encoded}?mode=ro"
-    conn = sqlite3.connect(uri, uri=True)
+    conn = sqlite3.connect(uri, uri=True, timeout=5.0)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA busy_timeout=5000")
     return conn
 
 
@@ -414,17 +419,17 @@ def load_project_resume(project_db: Path, project_key: str) -> dict[str, Any]:
             raise KeyError(f"Project '{project_key}' not found in {project_db}")
 
         state = conn.execute(
-            "SELECT id, created_at, content FROM project_states "
+            "SELECT id, created_at, actor, content FROM project_states "
             "WHERE project_key=? ORDER BY id DESC LIMIT 1",
             (project_key,),
         ).fetchone()
         cp = conn.execute(
-            "SELECT id, created_at, completed, next_step, context FROM project_checkpoints "
+            "SELECT id, created_at, actor, completed, next_step, context FROM project_checkpoints "
             "WHERE project_key=? ORDER BY id DESC LIMIT 1",
             (project_key,),
         ).fetchone()
         memories = conn.execute(
-            "SELECT id, created_at, kind, title, body FROM project_memories "
+            "SELECT id, created_at, actor, kind, title, body FROM project_memories "
             "WHERE project_key=? AND superseded_by_id IS NULL ORDER BY id DESC LIMIT 10",
             (project_key,),
         ).fetchall()
